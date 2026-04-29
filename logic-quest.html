@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logic Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FFF9F2;
+  --surface: #FFFFFF;
+  --text: #2D3436;
+  --text-muted: #636E72;
+  --coral: #FF6B6B;
+  --teal: #00CEC9;
+  --gold: #FDCB6E;
+  --purple: #6C5CE7;
+  --purple-light: #A29BFE;
+  --blue: #74B9FF;
+  --green: #55EFC4;
+  --orange: #FAB1A0;
+  --radius: 20px;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md: 0 8px 30px rgba(0,0,0,0.08);
+  --shadow-lg: 0 16px 40px rgba(0,0,0,0.10);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(108,92,231,0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0,206,201,0.04) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(253,203,110,0.03) 0%, transparent 60%);
+}
+
+.container { max-width: 800px; margin: 0 auto; padding: 24px 20px 60px; }
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+  position: sticky;
+  top: 16px;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.logo {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--purple), var(--coral));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.points-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--gold);
+  filter: drop-shadow(0 2px 4px rgba(253,203,110,0.3));
+}
+
+.points-display svg { width: 20px; height: 20px; }
+
+.badge-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), #E17055);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  transition: transform var(--transition);
+  box-shadow: 0 4px 12px rgba(253,203,110,0.3);
+}
+.badge-btn:hover { transform: scale(1.1) rotate(5deg); }
+.badge-btn:active { transform: scale(0.95); }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: var(--surface);
+  padding: 6px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab {
+  flex: 1;
+  padding: 14px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 16px;
+  cursor: pointer;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+}
+
+.tab:hover { color: var(--text); background: rgba(0,0,0,0.03); }
+.tab.active { color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+.tab.active.reasoning { background: var(--purple); }
+.tab.active.cause-effect { background: var(--teal); }
+.tab.active.sequencing { background: var(--coral); }
+
+.tab .tab-icon { font-size: 20px; }
+
+.tab-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--coral);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* Level Grid */
+.levels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.level-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-sm);
+  border: 3px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.level-card:not(.locked):hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.level-card.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+.level-card.locked:hover { transform: none; box-shadow: var(--shadow-sm); }
+
+.level-card.completed {
+  border-color: var(--green);
+}
+
+.level-card.completed::after {
+  content: '✓';
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.level-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.level-number {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.level-name {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.level-status {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 100px;
+  display: inline-block;
+}
+
+.level-status.complete { background: #DFFFD6; color: #00B894; }
+.level-status.locked-status { background: #DFE6E9; color: #636E72; }
+
+/* Challenge Area */
+.challenge-area {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: var(--shadow-md);
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 300px;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.challenge-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.challenge-title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.challenge-counter {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 700;
+  background: var(--bg);
+  padding: 6px 14px;
+  border-radius: 100px;
+}
+
+.progress-bar {
+  height: 6px;
+  background: #DFE6E9;
+  border-radius: 3px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.progress-fill.reasoning { background: var(--purple); }
+.progress-fill.cause-effect { background: var(--teal); }
+.progress-fill.sequencing { background: var(--coral); }
+
+.scenario {
+  background: var(--bg);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  font-size: 17px;
+  line-height: 1.6;
+  font-weight: 600;
+  border-left: 4px solid var(--purple);
+}
+
+.scenario.cause-effect { border-left-color: var(--teal); }
+.scenario.sequencing { border-left-color: var(--coral); }
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.option {
+  padding: 16px 20px;
+  background: var(--bg);
+  border: 2px solid transparent;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all var(--transition);
+  text-align: left;
+  font-family: 'Nunito', sans-serif;
+  position: relative;
+}
+
+.option:hover { border-color: #DFE6E9; background: #fff; }
+.option.selected { border-color: var(--purple); background: rgba(108,92,231,0.05); }
+.option.correct { border-color: var(--green); background: #DFFFD6; }
+.option.incorrect { border-color: var(--coral); background: #FFEAA7; }
+.option:disabled { cursor: default; pointer-events: none; }
+
+.feedback {
+  padding: 16px 20px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  font-size: 15px;
+  display: none;
+  animation: slideUp 0.3s ease;
+}
+
+.feedback.show { display: block; }
+.feedback.correct { background: #DFFFD6; color: #00B894; }
+.feedback.incorrect { background: #FFEAA7; color: #D63031; }
+
+.feedback .explanation {
+  font-weight: 400;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.btn {
+  padding: 14px 32px;
+  border: none;
+  border-radius: 100px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary { background: var(--purple); color: #fff; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,92,231,0.3); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-back {
+  background: transparent;
+  color: var(--text-muted);
+  padding: 10px 20px;
+}
+.btn-back:hover { color: var(--text); background: rgba(0,0,0,0.04); }
+
+.challenge-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Drag & Drop */
+.drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.drag-item {
+  padding: 14px 18px;
+  background: #fff;
+  border: 2px dashed #DFE6E9;
+  border-radius: 12px;
+  cursor: grab;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+}
+
+.drag-item:active { cursor: grabbing; }
+.drag-item:hover { border-color: #B2BEC3; }
+.drag-item.dragging { opacity: 0.5; border-style: solid; border-color: var(--purple); }
+.drag-item.drag-over { border-color: var(--teal); background: rgba(0,206,201,0.05); }
+
+.drag-handle { color: var(--text-muted); font-size: 18px; }
+
+.drag-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.drag-slot {
+  padding: 14px 18px;
+  border: 2px dashed #DFE6E9;
+  border-radius: 12px;
+  min-height: 48px;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drag-slot.drag-over { border-color: var(--purple); background: rgba(108,92,231,0.05); }
+
+.slot-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--purple);
+  padding: 3px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Text input */
+.text-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #DFE6E9;
+  border-radius: 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  transition: border-color var(--transition);
+  resize: vertical;
+  min-height: 80px;
+}
+
+.text-input:focus { outline: none; border-color: var(--purple); }
+
+.model-answer {
+  background: #DFFFD6;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-top: 12px;
+  font-size: 14px;
+  display: none;
+}
+
+.model-answer.show { display: block; animation: slideUp 0.3s ease; }
+.model-answer .label { font-weight: 700; color: #00B894; margin-bottom: 4px; }
+
+/* Badge Drawer */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+.overlay.open { opacity: 1; pointer-events: auto; }
+
+.badge-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 380px;
+  max-width: 90vw;
+  height: 100vh;
+  background: var(--surface);
+  z-index: 201;
+  padding: 24px;
+  box-shadow: var(--shadow-lg);
+  transform: translateX(100%);
+  transition: transform var(--transition);
+  overflow-y: auto;
+}
+.badge-drawer.open { transform: translateX(0); }
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.drawer-title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.drawer-close {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition);
+}
+.drawer-close:hover { background: #DFE6E9; }
+
+.badge-section { margin-bottom: 28px; }
+
+.badge-section-title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.badge-item {
+  background: var(--bg);
+  border-radius: 16px;
+  padding: 16px 12px;
+  text-align: center;
+  transition: all var(--transition);
+}
+
+.badge-item.earned {
+  background: linear-gradient(135deg, #FFF9C4, #FFF176);
+  box-shadow: 0 4px 12px rgba(253,203,110,0.3);
+}
+
+.badge-icon {
+  font-size: 32px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.badge-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.badge-item:not(.earned) .badge-icon { filter: grayscale(1); opacity: 0.3; }
+.badge-item:not(.earned) .badge-name { color: var(--text-muted); }
+
+/* Confetti */
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 300;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  animation: confettiFall 1.5s ease-out forwards;
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Back link in challenge */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: 'Nunito', sans-serif;
+  margin-bottom: 16px;
+  transition: color var(--transition);
+  padding: 0;
+}
+.back-link:hover { color: var(--text); }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-icon { font-size: 56px; margin-bottom: 16px; display: block; }
+.empty-title { font-family: 'Fredoka', sans-serif; font-size: 22px; margin-bottom: 8px; }
+.empty-text { color: var(--text-muted); font-size: 15px; max-width: 400px; margin: 0 auto; }
+
+/* Open-ended feedback */
+.open-feedback {
+  background: var(--bg);
+  border-radius: 14px;
+  padding: 20px;
+  margin-top: 16px;
+}
+
+.open-feedback p { margin-bottom: 8px; font-weight: 600; }
+.open-feedback .model { background: #DFFFD6; padding: 12px 16px; border-radius: 10px; font-size: 14px; color: #00B894; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container { padding: 16px 12px 40px; }
+  .tabs { gap: 4px; padding: 4px; }
+  .tab { font-size: 14px; padding: 12px 8px; }
+  .levels { grid-template-columns: 1fr; gap: 12px; }
+  .challenge-area { padding: 20px; }
+  .header { padding: 12px 16px; }
+  .logo { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <span class="logo">Logic Quest</span>
+    <div class="header-right">
+      <div class="points-display">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>
+        <span id="totalPoints">0</span>
+      </div>
+      <button class="badge-btn" id="badgeBtn" title="Badges">🏅</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab active reasoning" data-tab="reasoning">
+      <span class="tab-icon">🧠</span> Reasoning
+    </button>
+    <button class="tab cause-effect" data-tab="causeEffect">
+      <span class="tab-icon">⛓️</span> Cause & Effect
+    </button>
+    <button class="tab sequencing" data-tab="sequencing">
+      <span class="tab-icon">📋</span> Sequencing
+    </button>
+  </nav>
+
+  <div id="mainContent"></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="badge-drawer" id="badgeDrawer"></div>
+<div class="confetti-container" id="confetti"></div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────
+
+const CHALLENGES = {
+  reasoning: {
+    name: 'Reasoning',
+    icon: '🧠',
+    colorClass: 'reasoning',
+    levels: [
+      { // LEVEL 1: Pick the best reason
+        name: 'Pick the Best Reason',
+        icon: '🎯',
+        type: 'multiple-choice',
+        challenges: [
+          {
+            scenario: '"Reading is better than watching TV." Which reason BEST supports this claim?',
+            options: [
+              'Because I said so.',
+              'Reading improves vocabulary and imagination while TV is often passive.',
+              'TV has moving pictures and colors.',
+            ],
+            correct: 1,
+            explanation: 'A strong reason uses facts and evidence, not just opinions or irrelevant details.',
+            points: 10,
+          },
+          {
+            scenario: '"School should start later in the morning." Pick the strongest reason:',
+            options: [
+              'Studies show teens need more sleep for better learning and health.',
+              'Mornings are boring anyway.',
+              'My best friend agrees with this idea.',
+            ],
+            correct: 0,
+            explanation: 'Good arguments rely on evidence and research, not personal feelings or peer pressure.',
+            points: 10,
+          },
+          {
+            scenario: '"Recycling is important for our planet." Choose the BEST supporting reason:',
+            options: [
+              'Sorting trash into different bins is fun.',
+              'It reduces waste in landfills and saves natural resources.',
+              'Everyone at my school does it.',
+            ],
+            correct: 1,
+            explanation: 'The strongest reason explains WHY something matters with real-world impact.',
+            points: 10,
+          },
+        ],
+      },
+      { // LEVEL 2: Build an argument
+        name: 'Build an Argument',
+        icon: '🏗️',
+        type: 'drag-slots',
+        challenges: [
+          {
+            scenario: 'Arrange these into a Claim, Reason, and Example about pets:',
+            fragments: [
+              { text: 'Having a pet is good for your health.', label: 'Claim' },
+              { text: 'Pets reduce stress and loneliness in owners.', label: 'Reason' },
+              { text: 'For example, dog owners tend to have lower blood pressure.', label: 'Example' },
+            ],
+            points: 15,
+          },
+          {
+            scenario: 'Build an argument about exercise by matching Claim, Reason, and Example:',
+            fragments: [
+              { text: 'Regular exercise keeps your body and mind healthy.', label: 'Claim' },
+              { text: 'It strengthens your heart and releases feel-good brain chemicals.', label: 'Reason' },
+              { text: 'Studies show 30 minutes of daily walking significantly improves mood.', label: 'Example' },
+            ],
+            points: 15,
+          },
+          {
+            scenario: 'Construct an argument about learning languages:',
+            fragments: [
+              { text: 'Learning a second language opens doors to new cultures and careers.', label: 'Claim' },
+              { text: 'It improves brain function, memory, and problem-solving skills.', label: 'Reason' },
+              { text: 'Bilingual students often score higher on creative thinking tests.', label: 'Example' },
+            ],
+            points: 15,
+          },
+        ],
+      },
+      { // LEVEL 3: Spot the flaw
+        name: 'Spot the Flaw',
+        icon: '🔍',
+        type: 'multiple-choice',
+        challenges: [
+          {
+            scenario: '"We should ban homework because my friend doesn\'t like it." What\'s the flaw in this argument?',
+            options: [
+              'It uses one person\'s opinion instead of real evidence.',
+              'It has too many big words.',
+              'It mentions a friend, which is always wrong.',
+            ],
+            correct: 0,
+            explanation: 'A single person\'s feeling is not enough — strong arguments need broader evidence or data.',
+            points: 15,
+          },
+          {
+            scenario: '"Video games cause violence. I watched a violent movie once and felt angry, so games must be worse." What\'s wrong here?',
+            options: [
+              'The argument confuses movies with video games — they are different things.',
+              'The sentence is too long.',
+              'Video games have better graphics than movies.',
+            ],
+            correct: 0,
+            explanation: 'Comparing two different things as if they\'re the same is a logical mistake.',
+            points: 15,
+          },
+          {
+            scenario: '"Cats are better than dogs because cats are felines and felines are better." Spot the flaw:',
+            options: [
+              'It uses circular reasoning — assuming what it\'s trying to prove.',
+              'Dogs are mentioned too many times.',
+              'The argument is too short to be valid.',
+            ],
+            correct: 0,
+            explanation: 'Circular reasoning goes in a loop: "A is true because B is true, and B is true because A is true." It proves nothing!',
+            points: 25,
+          },
+        ],
+      },
+    ],
+  },
+
+  causeEffect: {
+    name: 'Cause & Effect',
+    icon: '⛓️',
+    colorClass: 'cause-effect',
+    levels: [
+      { // LEVEL 1: What happens next?
+        name: 'What Happens Next?',
+        icon: '🔮',
+        type: 'multiple-choice',
+        challenges: [
+          {
+            scenario: 'You leave an ice cube on the kitchen counter on a hot summer day. What happens next?',
+            options: ['It melts into a puddle of water.', 'It grows twice as big.', 'It turns bright blue.'],
+            correct: 0,
+            explanation: 'Heat causes ice to melt — this is a direct cause-and-effect relationship.',
+            points: 10,
+          },
+          {
+            scenario: 'A plant hasn\'t been watered for two whole weeks. What will you likely see?',
+            options: [
+              'Bright new flowers blooming everywhere.',
+              'Leaves wilting and turning brown.',
+              'The plant starts glowing in the dark.',
+            ],
+            correct: 1,
+            explanation: 'Without water, plants can\'t stay healthy — lack of water causes wilting.',
+            points: 10,
+          },
+          {
+            scenario: 'You study hard for a test and review all your notes carefully. What\'s the most likely result?',
+            options: [
+              'You forget everything the moment you sit down.',
+              'You feel confident and score well on the test.',
+              'The test gets cancelled for no reason.',
+            ],
+            correct: 1,
+            explanation: 'Preparation leads to confidence and better performance — effort causes results.',
+            points: 10,
+          },
+        ],
+      },
+      { // LEVEL 2: Fill the chain
+        name: 'Fill the Chain',
+        icon: '🔗',
+        type: 'multiple-choice',
+        challenges: [
+          {
+            scenario: 'Complete the chain: Heavy rain → [???] → Road is flooded',
+            options: ['Drains overflow and can\'t handle the water.', 'The sun immediately comes out.', 'Cars learn to float.'],
+            correct: 0,
+            explanation: 'Heavy rain overwhelms drains, which causes roads to flood. Each step leads logically to the next.',
+            points: 15,
+          },
+          {
+            scenario: 'Complete the chain: Eat too much candy → [???] → Feel sick',
+            options: ['Your body crashes from all the sugar.', 'You suddenly become super strong.', 'The candy vanishes.'],
+            correct: 0,
+            explanation: 'Too much sugar causes a crash, and the crash makes you feel sick — a clear chain of events.',
+            points: 15,
+          },
+          {
+            scenario: 'Complete the chain: Practice basketball every day → [???] → Make the school team',
+            options: ['Your skills improve significantly over time.', 'The basketball disappears.', 'The coach ignores your effort.'],
+            correct: 0,
+            explanation: 'Consistent practice builds skills, and strong skills lead to team selection.',
+            points: 15,
+          },
+        ],
+      },
+      { // LEVEL 3: If-Then Creator
+        name: 'If-Then Creator',
+        icon: '✍️',
+        type: 'open-ended',
+        challenges: [
+          {
+            scenario: 'Your friend wants to save money for a new bike. Write an If-Then plan to help them:',
+            modelAnswer: 'If I save $5 from my allowance each week, then I\'ll have enough money for the bike in a few months.',
+            hint: 'Use "If [action], then [result]." Think about what small habit leads to the goal.',
+            points: 20,
+          },
+          {
+            scenario: 'Your little brother keeps forgetting his lunch at home. Write an If-Then plan to help him remember:',
+            modelAnswer: 'If I put my lunch box by the front door the night before, then I won\'t forget it when I leave in the morning.',
+            hint: 'Think about a visual reminder the night before.',
+            points: 20,
+          },
+          {
+            scenario: 'You want to get better at a video game. Write an If-Then strategy:',
+            modelAnswer: 'If I practice for 20 minutes every day and watch tutorial videos, then my skills will steadily improve.',
+            hint: 'Consider what kind of practice and learning leads to improvement.',
+            points: 20,
+          },
+        ],
+      },
+    ],
+  },
+
+  sequencing: {
+    name: 'Sequencing',
+    icon: '📋',
+    colorClass: 'sequencing',
+    levels: [
+      { // LEVEL 1: Put it in order
+        name: 'Put It In Order',
+        icon: '🔢',
+        type: 'drag-order',
+        challenges: [
+          {
+            scenario: 'Arrange these steps in the right order to make a sandwich:',
+            items: ['Get two slices of bread', 'Spread butter or mayo', 'Add cheese and lettuce', 'Close the sandwich and enjoy'],
+            points: 10,
+          },
+          {
+            scenario: 'Put these morning routine steps in order:',
+            items: ['Wake up and get out of bed', 'Brush your teeth', 'Get dressed', 'Eat breakfast', 'Head to school'],
+            points: 10,
+          },
+          {
+            scenario: 'Order these stages of how a plant grows:',
+            items: ['Plant a seed in soil', 'Water the soil regularly', 'A small sprout appears', 'Leaves begin to grow', 'A flower blooms'],
+            points: 10,
+          },
+        ],
+      },
+      { // LEVEL 2: Which doesn't belong?
+        name: 'Which Doesn\'t Belong?',
+        icon: '🤔',
+        type: 'odd-one-out',
+        challenges: [
+          {
+            scenario: 'Which of these does NOT belong with the others?',
+            items: ['🍎 Apple', '🍌 Banana', '🚗 Car', '🍊 Orange'],
+            correct: 2,
+            explanation: 'A car is a vehicle — the other three are all fruits.',
+            points: 15,
+          },
+          {
+            scenario: 'One of these is not like the others. Which one?',
+            items: ['🏊 Swimming', '🏃 Running', '📖 Reading', '🚴 Cycling'],
+            correct: 2,
+            explanation: 'Reading is a mental activity — the other three are physical exercises.',
+            points: 15,
+          },
+          {
+            scenario: 'Find the item that doesn\'t fit the category:',
+            items: ['✏️ Pencil', '📓 Notebook', '🧽 Eraser', '🥪 Sandwich'],
+            correct: 3,
+            explanation: 'A sandwich is food — the other three are school supplies.',
+            points: 15,
+          },
+        ],
+      },
+      { // LEVEL 3: Tell the story
+        name: 'Tell the Story',
+        icon: '📖',
+        type: 'drag-order',
+        challenges: [
+          {
+            scenario: 'Arrange these panels in order to tell the story:',
+            items: [
+              'A boy finds a lost puppy in the park.',
+              'He puts up "Found Puppy" posters around town.',
+              'The owner sees a poster and calls the boy.',
+              'The puppy happily returns home.',
+            ],
+            points: 20,
+          },
+          {
+            scenario: 'Put these story moments in the right sequence:',
+            items: [
+              'A girl carefully plants a sunflower seed.',
+              'She waters it every morning before school.',
+              'A tiny green sprout pushes through the soil.',
+              'A tall, beautiful sunflower reaches toward the sky.',
+            ],
+            points: 20,
+          },
+          {
+            scenario: 'Arrange this story about friendship in order:',
+            items: [
+              'Two best friends argue over who won a board game.',
+              'They stop talking to each other for two days.',
+              'One friend realizes the game doesn\'t matter and apologizes.',
+              'They make up and play together again — this time just for fun.',
+            ],
+            points: 20,
+          },
+        ],
+      },
+    ],
+  },
+};
+
+const BADGES = {
+  reasoning: ['Reason Rookie', 'Evidence Expert', 'Logic Legend'],
+  causeEffect: ['Chain Starter', 'Link Builder', 'If-Then Master'],
+  sequencing: ['Order Keeper', 'Pattern Spotter', 'Story Weaver'],
+};
+
+// ─── STATE ───────────────────────────────────────────
+
+const DEFAULT_STATE = {
+  totalPoints: 0,
+  completedLevels: { reasoning: [], causeEffect: [], sequencing: [] },
+  badges: { reasoning: [false, false, false], causeEffect: [false, false, false], sequencing: [false, false, false] },
+};
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('logicQuestState');
+    return raw ? { ...DEFAULT_STATE, ...JSON.parse(raw) } : { ...DEFAULT_STATE };
+  } catch { return { ...DEFAULT_STATE }; }
+}
+
+function saveState(s) {
+  localStorage.setItem('logicQuestState', JSON.stringify(s));
+}
+
+let state = loadState();
+let currentView = 'levels'; // 'levels' | 'challenge'
+let currentTab = 'reasoning';
+let currentLevel = 0;
+let currentChallengeIdx = 0;
+let answeredThisChallenge = false;
+let firstTryCorrect = true; // Track if first try was correct for bonus
+
+// ─── RENDER ──────────────────────────────────────────
+
+const mainContent = document.getElementById('mainContent');
+const totalPointsEl = document.getElementById('totalPoints');
+const badgeBtn = document.getElementById('badgeBtn');
+const overlay = document.getElementById('overlay');
+const badgeDrawer = document.getElementById('badgeDrawer');
+const confettiEl = document.getElementById('confetti');
+
+function updatePoints() {
+  totalPointsEl.textContent = state.totalPoints;
+  saveState(state);
+}
+
+function isLevelUnlocked(tab, levelIdx) {
+  if (levelIdx === 0) return true;
+  return state.completedLevels[tab].includes(levelIdx - 1);
+}
+
+function isLevelCompleted(tab, levelIdx) {
+  return state.completedLevels[tab].includes(levelIdx);
+}
+
+function getTabProgress(tab) {
+  return state.completedLevels[tab].length;
+}
+
+function render() {
+  // Update tab UI
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active');
+    if (t.dataset.tab === currentTab) t.classList.add('active');
+  });
+
+  // Update points
+  updatePoints();
+
+  if (currentView === 'levels') {
+    renderLevels();
+  } else {
+    renderChallenge();
+  }
+}
+
+function renderLevels() {
+  currentView = 'levels';
+  const tabData = CHALLENGES[currentTab];
+  const completed = state.completedLevels[currentTab];
+  const progress = getTabProgress(currentTab);
+
+  let html = '';
+
+  html += `<div class="levels">`;
+  for (let i = 0; i < tabData.levels.length; i++) {
+    const level = tabData.levels[i];
+    const unlocked = isLevelUnlocked(currentTab, i);
+    const done = isLevelCompleted(currentTab, i);
+    let cls = 'level-card';
+    if (!unlocked) cls += ' locked';
+    if (done) cls += ' completed';
+
+    html += `<div class="${cls}" data-level="${i}" ${unlocked ? '' : 'aria-disabled="true"'}>`;
+    html += `<span class="level-icon">${level.icon}</span>`;
+    html += `<div class="level-number">Level ${i + 1}</div>`;
+    html += `<div class="level-name">${level.name}</div>`;
+    if (done) {
+      html += `<span class="level-status complete">Completed ✓</span>`;
+    } else if (!unlocked) {
+      html += `<span class="level-status locked-status">🔒 Locked</span>`;
+    }
+    html += `</div>`;
+  }
+  html += `</div>`;
+
+  // Tab progress bar
+  html += `<div style="margin-top:8px;">`;
+  html += `<div class="progress-bar"><div class="progress-fill ${tabData.colorClass}" style="width:${(progress / 3) * 100}%"></div></div>`;
+  html += `<div style="text-align:center;margin-top:6px;font-size:13px;color:var(--text-muted);font-weight:600;">${progress} of 3 levels completed</div>`;
+  html += `</div>`;
+
+  mainContent.innerHTML = html;
+
+  // Attach level click handlers
+  document.querySelectorAll('.level-card:not(.locked)').forEach(card => {
+    card.addEventListener('click', () => {
+      currentLevel = parseInt(card.dataset.level);
+      currentChallengeIdx = 0;
+      openChallenge();
+    });
+  });
+}
+
+function openChallenge() {
+  currentView = 'challenge';
+  answeredThisChallenge = false;
+  renderChallenge();
+}
+
+function renderChallenge() {
+  const tabData = CHALLENGES[currentTab];
+  const level = tabData.levels[currentLevel];
+  const challenge = level.challenges[currentChallengeIdx];
+  const total = level.challenges.length;
+
+  let html = '';
+
+  html += `<button class="back-link" id="backBtn">← Back to levels</button>`;
+
+  html += `<div class="challenge-area">`;
+  html += `<div class="challenge-header">`;
+  html += `<span class="challenge-title">${level.icon} ${level.name}</span>`;
+  html += `<span class="challenge-counter">Challenge ${currentChallengeIdx + 1} of ${total}</span>`;
+  html += `</div>`;
+
+  html += `<div class="progress-bar"><div class="progress-fill ${tabData.colorClass}" style="width:${((currentChallengeIdx + 1) / total) * 100}%"></div></div>`;
+
+  html += `<div class="scenario ${tabData.colorClass}">${challenge.scenario}</div>`;
+
+  // Render based on type
+  if (level.type === 'multiple-choice') {
+    html += `<div class="options" id="optionsContainer">`;
+    challenge.options.forEach((opt, i) => {
+      html += `<button class="option" data-idx="${i}"><span style="font-weight:700;margin-right:8px;color:var(--text-muted);">${String.fromCharCode(65 + i)}.</span>${opt}</button>`;
+    });
+    html += `</div>`;
+  }
+
+  if (level.type === 'drag-order') {
+    const shuffled = [...challenge.items].map((item, i) => ({ text: item, originalIdx: i }));
+    // Simple Fisher-Yates shuffle
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    html += `<div class="drag-list" id="dragList">`;
+    shuffled.forEach((item, i) => {
+      html += `<div class="drag-item" draggable="true" data-original="${item.originalIdx}" data-idx="${i}">`;
+      html += `<span class="drag-handle">⠿</span> ${item.text}`;
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
+
+  if (level.type === 'drag-slots') {
+    const shuffled = [...challenge.fragments].map((f, i) => ({ ...f, originalIdx: i }));
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    html += `<div class="drag-list" id="dragList">`;
+    shuffled.forEach((frag, i) => {
+      html += `<div class="drag-item" draggable="true" data-original="${frag.originalIdx}" data-label="${frag.label}" data-idx="${i}">`;
+      html += `<span class="drag-handle">⠿</span> ${frag.text}`;
+      html += `</div>`;
+    });
+    html += `</div>`;
+    html += `<div class="drag-slots" id="dragSlots">`;
+    ['Claim', 'Reason', 'Example'].forEach((label, i) => {
+      html += `<div class="drag-slot" data-slot="${label}" data-slot-idx="${i}">`;
+      html += `<span class="slot-label">${label}</span> Drop here`;
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
+
+  if (level.type === 'odd-one-out') {
+    html += `<div class="options" id="optionsContainer">`;
+    challenge.items.forEach((item, i) => {
+      html += `<button class="option" data-idx="${i}">${item}</button>`;
+    });
+    html += `</div>`;
+  }
+
+  if (level.type === 'open-ended') {
+    html += `<textarea class="text-input" id="textAnswer" placeholder="Write your If-Then plan here..."></textarea>`;
+    html += `<div style="font-size:13px;color:var(--text-muted);margin-top:8px;">💡 Hint: ${challenge.hint}</div>`;
+    html += `<div class="model-answer" id="modelAnswer">`;
+    html += `<div class="label">✨ Model Answer:</div>`;
+    html += `<div>${challenge.modelAnswer}</div>`;
+    html += `</div>`;
+  }
+
+  html += `<div class="feedback" id="feedback"></div>`;
+
+  html += `<div class="challenge-actions">`;
+  if (level.type === 'open-ended') {
+    html += `<button class="btn btn-primary" id="submitBtn">Check Answer</button>`;
+  } else if (level.type === 'drag-order' || level.type === 'drag-slots') {
+    html += `<button class="btn btn-primary" id="checkOrderBtn" disabled>Check Order</button>`;
+  }
+  html += `<button class="btn btn-primary" id="continueBtn" style="display:none;">Continue →</button>`;
+  html += `</div>`;
+
+  html += `</div>`; // close challenge-area
+
+  mainContent.innerHTML = html;
+
+  // Attach handlers
+  document.getElementById('backBtn').addEventListener('click', () => {
+    currentView = 'levels';
+    render();
+  });
+
+  if (level.type === 'multiple-choice' || level.type === 'odd-one-out') {
+    document.querySelectorAll('.option').forEach(opt => {
+      opt.addEventListener('click', () => handleOptionClick(parseInt(opt.dataset.idx), level, challenge));
+    });
+  }
+
+  if (level.type === 'drag-order') setupDragOrder();
+  if (level.type === 'drag-slots') setupDragSlots(challenge);
+
+  if (level.type === 'open-ended') {
+    document.getElementById('submitBtn').addEventListener('click', () => handleOpenEnded(challenge));
+  }
+}
+
+// ─── HANDLERS ────────────────────────────────────────
+
+function handleOptionClick(selectedIdx, level, challenge) {
+  if (answeredThisChallenge) return;
+  answeredThisChallenge = true;
+
+  const isCorrect = level.type === 'odd-one-out'
+    ? selectedIdx === challenge.correct
+    : selectedIdx === challenge.correct;
+
+  const feedbackEl = document.getElementById('feedback');
+  feedbackEl.classList.add('show');
+  feedbackEl.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+  if (isCorrect) {
+    feedbackEl.innerHTML = `✅ Correct! <div class="explanation">${challenge.explanation}</div>`;
+  } else {
+    firstTryCorrect = false;
+    const correctOpt = level.type === 'odd-one-out'
+      ? challenge.items[challenge.correct]
+      : challenge.options[challenge.correct];
+    feedbackEl.innerHTML = `❌ Not quite. The answer was: <strong>${correctOpt}</strong><div class="explanation">${challenge.explanation}</div>`;
+  }
+
+  // Highlight correct/incorrect
+  document.querySelectorAll('.option').forEach((opt, i) => {
+    opt.disabled = true;
+    if (i === challenge.correct) opt.classList.add('correct');
+    if (i === selectedIdx && !isCorrect) opt.classList.add('incorrect');
+  });
+
+  showContinue(level, challenge, isCorrect);
+}
+
+function showContinue(level, challenge, isCorrect) {
+  const continueBtn = document.getElementById('continueBtn');
+  continueBtn.style.display = 'inline-flex';
+
+  continueBtn.addEventListener('click', () => {
+    if (isCorrect) {
+      awardPoints(challenge.points, firstTryCorrect);
+    }
+
+    currentChallengeIdx++;
+    if (currentChallengeIdx >= level.challenges.length) {
+      completeLevel();
+    } else {
+      answeredThisChallenge = false;
+      firstTryCorrect = true;
+      renderChallenge();
+    }
+  }, { once: true });
+}
+
+function handleOpenEnded(challenge) {
+  const textAnswer = document.getElementById('textAnswer').value.trim();
+  if (!textAnswer) return;
+
+  const submitBtn = document.getElementById('submitBtn');
+  const modelAnswerEl = document.getElementById('modelAnswer');
+  const feedbackEl = document.getElementById('feedback');
+  const continueBtn = document.getElementById('continueBtn');
+
+  if (!answeredThisChallenge) {
+    answeredThisChallenge = true;
+    submitBtn.style.display = 'none';
+    modelAnswerEl.classList.add('show');
+
+    // Simple check: contains "if" and "then"
+    const hasIf = /\bif\b/i.test(textAnswer);
+    const hasThen = /\bthen\b/i.test(textAnswer);
+    const goodLength = textAnswer.split(' ').length >= 5;
+
+    if (hasIf && hasThen && goodLength) {
+      feedbackEl.classList.add('show', 'correct');
+      feedbackEl.innerHTML = `✅ Great If-Then statement! Compare it to the model answer below.`;
+    } else {
+      feedbackEl.classList.add('show', 'incorrect');
+      feedbackEl.innerHTML = `👀 Good try! Make sure your answer uses both "If..." and "then..." Check the model answer for an example.`;
+      firstTryCorrect = false;
+    }
+
+    continueBtn.style.display = 'inline-flex';
+    continueBtn.addEventListener('click', () => {
+      awardPoints(challenge.points, firstTryCorrect);
+      currentChallengeIdx++;
+      if (currentChallengeIdx >= CHALLENGES[currentTab].levels[currentLevel].challenges.length) {
+        completeLevel();
+      } else {
+        answeredThisChallenge = false;
+        firstTryCorrect = true;
+        renderChallenge();
+      }
+    }, { once: true });
+  }
+}
+
+// ─── DRAG ORDER ──────────────────────────────────────
+
+function setupDragOrder() {
+  const items = document.querySelectorAll('.drag-item');
+  const container = document.getElementById('dragList');
+  const checkBtn = document.getElementById('checkOrderBtn');
+
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', item.dataset.idx);
+      item.classList.add('dragging');
+    });
+    item.addEventListener('dragend', () => item.classList.remove('dragging'));
+  });
+
+  container.addEventListener('dragover', e => {
+    e.preventDefault();
+    const dragging = container.querySelector('.dragging');
+    if (!dragging) return;
+    const after = getDragAfter(container, e.clientY);
+    if (after) container.insertBefore(dragging, after);
+    else container.appendChild(dragging);
+    checkBtn.disabled = false;
+  });
+
+  checkBtn.disabled = false;
+  checkBtn.addEventListener('click', () => handleOrderCheck());
+}
+
+function getDragAfter(container, y) {
+  const items = [...container.querySelectorAll('.drag-item:not(.dragging)')];
+  return items.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) return { offset, element: child };
+    return closest;
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function handleOrderCheck() {
+  if (answeredThisChallenge) return;
+  answeredThisChallenge = true;
+
+  const level = CHALLENGES[currentTab].levels[currentLevel];
+  const challenge = level.challenges[currentChallengeIdx];
+
+  let isCorrect = false;
+
+  if (level.type === 'drag-order') {
+    const currentOrder = [...document.querySelectorAll('#dragList .drag-item')].map(el => parseInt(el.dataset.original));
+    const correctOrder = challenge.items.map((_, i) => i);
+    isCorrect = arraysEqual(currentOrder, correctOrder);
+  }
+
+  const feedbackEl = document.getElementById('feedback');
+  feedbackEl.classList.add('show');
+  feedbackEl.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+  if (isCorrect) {
+    feedbackEl.innerHTML = `✅ Perfect order!`;
+  } else {
+    firstTryCorrect = false;
+    feedbackEl.innerHTML = `❌ Not the right order yet. Try dragging items to rearrange them, then check again.`;
+  }
+
+  if (!isCorrect) {
+    // Allow retry
+    answeredThisChallenge = false;
+  } else {
+    document.querySelectorAll('.drag-item').forEach(el => el.setAttribute('draggable', 'false'));
+    document.getElementById('checkOrderBtn').style.display = 'none';
+    showContinue(level, challenge, true);
+  }
+}
+
+// ─── DRAG SLOTS ──────────────────────────────────────
+
+function setupDragSlots(challenge) {
+  const items = document.querySelectorAll('#dragList .drag-item');
+  const slots = document.querySelectorAll('.drag-slot');
+  const checkBtn = document.getElementById('checkOrderBtn');
+
+  // Items drag to slots
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', item.dataset.idx);
+      item.classList.add('dragging');
+    });
+    item.addEventListener('dragend', () => item.classList.remove('dragging'));
+  });
+
+  // Items can also be dragged back to the list
+  const dragList = document.getElementById('dragList');
+  dragList.addEventListener('dragover', e => e.preventDefault());
+  dragList.addEventListener('drop', e => {
+    e.preventDefault();
+    const dragIdx = e.dataTransfer.getData('text/plain');
+    const dragging = document.querySelector(`.drag-item[data-idx="${dragIdx}"]`);
+    if (dragging) {
+      // Remove from any slot
+      slots.forEach(s => {
+        if (s.contains(dragging)) s.innerHTML = `<span class="slot-label">${s.dataset.slot}</span> Drop here`;
+      });
+      dragList.appendChild(dragging);
+      checkBtn.disabled = true;
+    }
+  });
+
+  slots.forEach(slot => {
+    slot.addEventListener('dragover', e => {
+      e.preventDefault();
+      slot.classList.add('drag-over');
+    });
+    slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+    slot.addEventListener('drop', e => {
+      e.preventDefault();
+      slot.classList.remove('drag-over');
+      const dragIdx = e.dataTransfer.getData('text/plain');
+      const dragging = document.querySelector(`.drag-item[data-idx="${dragIdx}"]`);
+      if (dragging) {
+        // Remove from other slots
+        slots.forEach(s => {
+          if (s !== slot && s.contains(dragging)) {
+            s.innerHTML = `<span class="slot-label">${s.dataset.slot}</span> Drop here`;
+          }
+        });
+        slot.innerHTML = '';
+        slot.appendChild(dragging);
+        checkBtn.disabled = false;
+      }
+    });
+  });
+
+  checkBtn.addEventListener('click', () => handleSlotsCheck(challenge));
+}
+
+function handleSlotsCheck(challenge) {
+  if (answeredThisChallenge) return;
+  answeredThisChallenge = true;
+
+  const slots = document.querySelectorAll('.drag-slot');
+  let allCorrect = true;
+
+  const slotMap = {};
+  slots.forEach(slot => {
+    const item = slot.querySelector('.drag-item');
+    if (item) {
+      slotMap[slot.dataset.slot] = item.dataset.label;
+    }
+  });
+
+  // Check each fragment is in correct slot
+  challenge.fragments.forEach(frag => {
+    if (slotMap[frag.label] !== frag.label) allCorrect = false;
+  });
+
+  // Also check all slots are filled
+  if (Object.keys(slotMap).length !== 3) allCorrect = false;
+
+  const feedbackEl = document.getElementById('feedback');
+  feedbackEl.classList.add('show');
+  feedbackEl.classList.add(allCorrect ? 'correct' : 'incorrect');
+
+  if (allCorrect) {
+    feedbackEl.innerHTML = `✅ Great job! You correctly identified the Claim, Reason, and Example.`;
+    document.querySelectorAll('.drag-item').forEach(el => el.setAttribute('draggable', 'false'));
+    document.getElementById('checkOrderBtn').style.display = 'none';
+    showContinue(CHALLENGES[currentTab].levels[currentLevel], challenge, true);
+  } else {
+    firstTryCorrect = false;
+    feedbackEl.innerHTML = `❌ Not quite. A <strong>Claim</strong> states your position, a <strong>Reason</strong> explains why, and an <strong>Example</strong> gives evidence. Try again!`;
+    answeredThisChallenge = false;
+  }
+}
+
+// ─── LEVEL COMPLETION ────────────────────────────────
+
+function completeLevel() {
+  const tab = currentTab;
+  if (!state.completedLevels[tab].includes(currentLevel)) {
+    state.completedLevels[tab].push(currentLevel);
+    state.completedLevels[tab].sort((a, b) => a - b);
+  }
+
+  // Award badge
+  state.badges[tab][currentLevel] = true;
+  saveState(state);
+
+  // Confetti!
+  spawnConfetti();
+
+  // Show completion screen
+  const badgeName = BADGES[tab][currentLevel];
+  const tabData = CHALLENGES[tab];
+
+  mainContent.innerHTML = `
+    <div class="challenge-area" style="text-align:center;">
+      <span style="font-size:64px;display:block;margin-bottom:16px;animation: bounce 0.6s ease infinite alternate;">🏆</span>
+      <h2 style="font-family:'Fredoka',sans-serif;font-size:28px;margin-bottom:8px;">Level Complete!</h2>
+      <p style="font-size:16px;color:var(--text-muted);margin-bottom:8px;">${tabData.levels[currentLevel].icon} ${tabData.levels[currentLevel].name}</p>
+      <div style="background:linear-gradient(135deg,#FFF9C4,#FFF176);border-radius:16px;padding:20px;margin:20px 0;display:inline-block;min-width:200px;">
+        <span style="font-size:40px;display:block;">🏅</span>
+        <span style="font-weight:700;font-size:18px;">Badge Earned!</span>
+        <div style="font-size:15px;font-weight:600;color:#F39C12;margin-top:4px;">${badgeName}</div>
+      </div>
+      <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="backToLevelsBtn">Back to Levels</button>
+        ${currentLevel < 2 ? `<button class="btn btn-primary" id="nextLevelBtn" style="background:var(--teal);">Next Level →</button>` : ''}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('backToLevelsBtn').addEventListener('click', () => {
+    currentView = 'levels';
+    render();
+  });
+
+  const nextBtn = document.getElementById('nextLevelBtn');
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      currentLevel++;
+      currentChallengeIdx = 0;
+      answeredThisChallenge = false;
+      firstTryCorrect = true;
+      openChallenge();
+    });
+  }
+
+  updatePoints();
+}
+
+// ─── POINTS & CONFETTI ───────────────────────────────
+
+function awardPoints(basePoints, firstTry) {
+  state.totalPoints += basePoints + (firstTry ? 5 : 0);
+  saveState(state);
+  updatePoints();
+
+  // Animate points
+  totalPointsEl.style.transform = 'scale(1.3)';
+  setTimeout(() => totalPointsEl.style.transform = 'scale(1)', 200);
+}
+
+function spawnConfetti() {
+  const colors = ['#FF6B6B','#FDCB6E','#6C5CE7','#00CEC9','#55EFC4','#74B9FF','#FAB1A0','#A29BFE'];
+  const frags = 50;
+
+  for (let i = 0; i < frags; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 0.5 + 's';
+    piece.style.animationDuration = (1 + Math.random() * 2) + 's';
+    piece.style.width = (6 + Math.random() * 10) + 'px';
+    piece.style.height = (6 + Math.random() * 10) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    confettiEl.appendChild(piece);
+
+    setTimeout(() => piece.remove(), 2000);
+  }
+}
+
+// ─── BADGE DRAWER ────────────────────────────────────
+
+function renderBadgeDrawer() {
+  let html = `
+    <div class="drawer-header">
+      <span class="drawer-title">🏅 Badges</span>
+      <button class="drawer-close" id="drawerClose">✕</button>
+    </div>
+  `;
+
+  const earnedCount = Object.values(state.badges).flat().filter(Boolean).length;
+
+  html += `<p style="color:var(--text-muted);margin-bottom:20px;font-weight:600;">${earnedCount} of 9 badges earned</p>`;
+
+  for (const [tab, badgeNames] of Object.entries(BADGES)) {
+    const tabData = CHALLENGES[tab];
+    html += `<div class="badge-section">`;
+    html += `<div class="badge-section-title">${tabData.icon} ${tabData.name}</div>`;
+    html += `<div class="badge-grid">`;
+    for (let i = 0; i < badgeNames.length; i++) {
+      const earned = state.badges[tab][i];
+      html += `<div class="badge-item${earned ? ' earned' : ''}">`;
+      html += `<span class="badge-icon">${earned ? '🏅' : '🔒'}</span>`;
+      html += `<div class="badge-name">${earned ? badgeNames[i] : '???'}</div>`;
+      html += `</div>`;
+    }
+    html += `</div></div>`;
+  }
+
+  badgeDrawer.innerHTML = html;
+
+  document.getElementById('drawerClose').addEventListener('click', closeBadgeDrawer);
+
+  // Reattach since overlay might be replaced
+  overlay.addEventListener('click', closeBadgeDrawer);
+}
+
+function openBadgeDrawer() {
+  renderBadgeDrawer();
+  badgeDrawer.classList.add('open');
+  overlay.classList.add('open');
+}
+
+function closeBadgeDrawer() {
+  badgeDrawer.classList.remove('open');
+  overlay.classList.remove('open');
+}
+
+badgeBtn.addEventListener('click', openBadgeDrawer);
+overlay.addEventListener('click', closeBadgeDrawer);
+
+// ─── TAB SWITCHING ───────────────────────────────────
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    currentTab = tab.dataset.tab;
+    currentView = 'levels';
+    render();
+  });
+});
+
+// ─── HELPERS ──────────────────────────────────────────
+
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  return a.every((v, i) => v === b[i]);
+}
+
+// ─── INIT ────────────────────────────────────────────
+
+render();
+</script>
+</body>
+</html>
